@@ -1,0 +1,3 @@
+{
+    "/paymenthistory/patientid/:patientid": "/paymenthistory?patientid=:patientid"
+}

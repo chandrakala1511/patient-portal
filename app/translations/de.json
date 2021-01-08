@@ -1,0 +1,8 @@
+{
+  "patientportal.components.Header.appointments": "",
+  "patientportal.components.Header.home": "",
+  "patientportal.containers.AppointmentList.header": "",
+  "patientportal.containers.LocaleToggle.de": "",
+  "patientportal.containers.LocaleToggle.en": "",
+  "patientportal.containers.NotFoundPage.header": "Seite nicht gefunden."
+}

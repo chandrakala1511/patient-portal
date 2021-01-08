@@ -1,0 +1,9 @@
+{
+  "patientportal.components.Footer.author.message": "",
+  "patientportal.components.Header.appointments": "Appointment",
+  "patientportal.components.Header.home": "Home",
+  "patientportal.containers.AppointmentList.header": "Appointments",
+  "patientportal.containers.LocaleToggle.de": "de",
+  "patientportal.containers.LocaleToggle.en": "en",
+  "patientportal.containers.NotFoundPage.header": "Page not found."
+}

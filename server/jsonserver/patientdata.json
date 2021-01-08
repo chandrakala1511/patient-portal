@@ -1,0 +1,120 @@
+{
+  "patients": [
+    {
+      "id": "5ff6cf4a1e0ed72530fbbafb",
+      "salutation": "Ms",
+      "name": "Langley Holt",
+      "gender": "Male",
+      "dateofbirth": "2014-08-18T21:11:54",
+      "age": "http://placehold.it/32x32",
+      "agetype": 32,
+      "appointmentDate": "blue",
+      "phoneNumber": "+1 (936) 515-2580",
+      "address1": "124 Whitney Avenue, Bergoo, Texas, 1984",
+      "address2": "677 Bleecker Street, Roulette, Rhode Island, 9510",
+      "city": "langleyholt@zinca.com",
+      "state": "+1 (909) 592-3985",
+      "zipcode": 6558,
+      "country": "GEEKWAGON"
+    },
+    {
+      "id": "5ff6cf4a1084dd333df31476",
+      "salutation": "Mrs",
+      "name": "Ida Salinas",
+      "gender": "Male",
+      "dateofbirth": "2014-08-18T21:11:54",
+      "age": "http://placehold.it/32x32",
+      "agetype": 23,
+      "appointmentDate": "green",
+      "phoneNumber": "+1 (993) 486-2283",
+      "address1": "557 Freeman Street, Ironton, Alaska, 1062",
+      "address2": "414 Irving Avenue, Vowinckel, Virginia, 5566",
+      "city": "idasalinas@geekwagon.com",
+      "state": "+1 (990) 581-2017",
+      "zipcode": 883,
+      "country": "BLUEGRAIN"
+    },
+    {
+      "id": "5ff6cf4ab109710573666a03",
+      "salutation": "Mr",
+      "name": "Cote Blanchard",
+      "gender": "Female",
+      "dateofbirth": "2014-08-18T21:11:54",
+      "age": "http://placehold.it/32x32",
+      "agetype": 27,
+      "appointmentDate": "brown",
+      "phoneNumber": "+1 (876) 544-3690",
+      "address1": "571 Carroll Street, Warren, New Hampshire, 6041",
+      "address2": "491 Caton Place, Hoehne, Nevada, 321",
+      "city": "coteblanchard@bluegrain.com",
+      "state": "+1 (981) 562-2963",
+      "zipcode": 2869,
+      "country": "POWERNET"
+    },
+    {
+      "id": "5ff6cf4ae2db54490f998dd6",
+      "salutation": "Mrs",
+      "name": "Casey Ortega",
+      "gender": "Female",
+      "dateofbirth": "2014-08-18T21:11:54",
+      "age": "http://placehold.it/32x32",
+      "agetype": 40,
+      "appointmentDate": "blue",
+      "phoneNumber": "+1 (919) 444-2936",
+      "address1": "272 Batchelder Street, Biddle, Idaho, 3692",
+      "address2": "920 Mersereau Court, Tyhee, Utah, 828",
+      "city": "caseyortega@powernet.com",
+      "state": "+1 (898) 570-2443",
+      "zipcode": 5396,
+      "country": "MARKETOID"
+    },
+    {
+      "id": "5ff6cf4af8d8ff7dee61140b",
+      "salutation": "Mr",
+      "name": "Murray Cole",
+      "gender": "Male",
+      "dateofbirth": "2014-08-18T21:11:54",
+      "age": "http://placehold.it/32x32",
+      "agetype": 24,
+      "appointmentDate": "brown",
+      "phoneNumber": "+1 (817) 463-3365",
+      "address1": "516 Doughty Street, Devon, New Jersey, 5748",
+      "address2": "657 Eldert Street, Wakarusa, Kentucky, 6332",
+      "city": "murraycole@marketoid.com",
+      "state": "+1 (823) 595-3136",
+      "zipcode": 2511,
+      "country": "COSMOSIS"
+    }
+  ],
+  "tests": [
+    {
+      "testName": "CT BRAIN",
+      "maxDiscount": "100",
+      "maxDiscountType": "INR",
+      "modality": "CT",
+      "slots": "7"
+    },
+    {
+      "testName": "MRI BRAIN",
+      "maxDiscount": "300",
+      "maxDiscountType": "INR",
+      "modality": "MRI",
+      "slots": "6"
+    },
+    {
+      "testName": "GLUCOSE FASTING",
+      "maxDiscount": "10",
+      "maxDiscountType": "%",
+      "modality": "LAB",
+      "slots": "INFINITY"
+    }
+  ],
+  "paymenthistory": {
+    "id": "1111",
+    "patientid": "5ff6cf4af8d8ff7dee61140b",
+    "paymentdate": "2021/01/06",
+    "paymentMode": "Card",
+    "referencenumber": "34324234324",
+    "paidamount": "200"
+  }
+}
