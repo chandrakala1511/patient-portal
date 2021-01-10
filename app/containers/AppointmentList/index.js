@@ -1,130 +1,119 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
+//import { FormattedMessage } from 'react-intl';
+//import messages from './messages';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { useHistory, Redirect } from "react-router-dom";
 import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import messages from './messages';
+import saga from '../App/saga';
+import reducer from '../App/reducer';
 import { loadPatientList } from '../App/actions';
-import { changePatientname } from './actions';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import reducer from './reducer';
-import saga from './saga';
-import { DataGrid, ColDef, ValueGetterParams, CellParams, GridApi } from '@material-ui/data-grid';
+import { DataGrid } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import patientData from './patientData' 
+import Grid from '@material-ui/core/Grid';
 
 const key = 'appointments';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-  },
-}));
 
 const filterModel = {
   items: [{ columnField: 'name' }],
 };
 
-export function AppointmentList({
-  loadPatientList,
-  patientname,
-  loading,
-  error,
-  repos,
-  onSubmitForm
-}) {
+function AppointmentList(props) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   useEffect(() => {
-    loadPatientList();
+    props.loadPatientList();
   }, []);
 
+ // const history = useHistory();
+
   const data = {
-    "columns": [
+    columns: [
       {
-        "field": "name",
-        "headerName": "Patient Name",
-        "width": 200
+        field: 'name',
+        headerName: 'Patient Name',
+        width: 200,
       },
       {
-        "field": "gender",
-        "headerName": "Age / Gender",
-        "width": 180
+        field: 'gender',
+        headerName: 'Age / Gender',
+        width: 180,
       },
       {
-        "field": "appointmentDate",
-        "headerName": "Appointment Date",
-        "width": 200
+        field: 'appointmentDate',
+        headerName: 'Appointment Date',
+        width: 200,
       },
       {
-        "field": "balanceAmount",
-        "headerName": "Balance Amount",
-        "disableClickEventBubbling": true,
-        "width": 200
+        field: 'balanceAmount',
+        headerName: 'Balance Amount',
+        disableClickEventBubbling: true,
+        width: 200,
       },
       {
-        "field": "action",
-        "headerName": "Action",
-        "filterable": "false",
-        "width": 150,
-        "disableClickEventBubbling": true,
-        "renderCell": () => {
-          return <Button variant="contained" className="pay-button">Click to pay</Button>;
-        }
-      }
+        field: 'id',
+        headerName: 'Action',
+        filterable: 'false',
+        width: 150,
+        disableClickEventBubbling: true,
+        renderCell: (params) => (
+          <Button variant="contained" className="pay-button" onClick={() => handlePaymentClick(params.value)}>Click to pay</Button>
+        ),
+      },
     ],
-    "rows": patientData.data
+    rows: props.medicalData.map(item => { item.gender = item.age + " / " + item.gender;item.balanceAmount = item.totalAmount; return item; })
   }
-  const classes = useStyles();
+
+  const handlePaymentClick = (id) => { 
+    window.location ="http://localhost:3000/patientbilling/"+id;
+    //history.push("/patientbilling/"+id)
+  }
+
   return (
     <div>
       <Helmet>
         <title>View Appointment</title>
-        <meta
-          name="description"
-          content="View Appointment"
-        />
+        <meta name="description" content="View Appointment" />
       </Helmet>
-      <Typography variant="h6" gutterBottom>
-        View Appointment
+      <Grid container spacing={3}>
+        <Grid item xs={6} sm={12}>
+          <Typography variant="h6" gutterBottom>
+            View Appointment
       </Typography>
-      <div style={{ height: 400, width: '100%' }}>
-        <div style={{ height: 400, width: '100%' }}>
-          <DataGrid {...data}  filterModel={filterModel} showToolbar disableDensitySelector/>
-        </div>
-      </div>
+          <div style={{ height: 700, width: '100%' }}>
+            <div style={{ height: 700, width: '100%' }}>
+              <DataGrid
+                {...data}
+                filterModel={filterModel}
+                showToolbar
+                disableDensitySelector
+              />
+            </div>
+          </div>
+        </Grid>
+      </Grid >
     </div>
   );
 }
 
 AppointmentList.propTypes = {
-  loading: PropTypes.bool,
-  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  // error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   loadPatientList: PropTypes.func,
-  patientname: PropTypes.string
 };
 
-const mapStateToProps = createStructuredSelector({
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
+const mapStateToProps = state => ({
+  medicalData: state['global'].medicalData,
 });
 
-export function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
-    loadPatientList: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadPatientList());
-    },
+    loadPatientList: () => dispatch(loadPatientList()),
   };
 }
 
@@ -135,5 +124,6 @@ const withConnect = connect(
 
 export default compose(
   withConnect,
-  memo,
+  withRouter,
 )(AppointmentList);
+

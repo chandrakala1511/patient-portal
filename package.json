@@ -4,7 +4,7 @@
   "description": "Patient Portal",
   "repository": {
     "type": "git",
-    "url": "git://github.com/chandrakala1511/patientportal.git"
+    "url": "git://github.com/chandrakala1511/patient-portal.git"
   },
   "engines": {
     "npm": ">=5",
@@ -50,7 +50,6 @@
   ],
   "lint-staged": {
     "*.js": [
-      "npm run lint:eslint:fix",
       "git add --force"
     ],
     "*.json": [

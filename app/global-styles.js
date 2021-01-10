@@ -50,12 +50,36 @@ const GlobalStyle = createGlobalStyle`
     margin-bottom: 20px !important;
   }
 
+  .scan-amount {
+    font-size: 14px;
+    margin-top: 46px !important;
+    span {
+      color: #538B91;
+    }
+  }
+
+  .scan-discount {
+    margin-top: 27px !important;
+  }
+
+  .add-button {
+    margin-top: 38px !important;
+  }
+
   .save-button {
     margin: 20px 0 !important;
   }
 
   .pay-button {
     height: 25px;
+  }
+
+  .info {
+    color: #b90909;
+  }
+
+  .MuiInputLabel-asterisk {
+    color: #b90909 !important;
   }
 
   .MuiTypography-h6 {
@@ -68,6 +92,18 @@ const GlobalStyle = createGlobalStyle`
 
   .MuiButton-textPrimary {
     color: #666 !important;
+  }
+
+  .MuiDataGrid-columnsContainer {
+    background-color: #b5e3e8;
+  }
+
+  .MuiDataGrid-viewport {
+    min-width: 1000px !important;
+  }
+  
+  .MuiDataGrid-toolbar {
+    align: right !important;
   }
 `;
 

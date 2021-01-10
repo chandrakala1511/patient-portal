@@ -65,7 +65,7 @@ function checkIfRepositoryIsAClone() {
         .split(/\r?\n/)
         .map(line => line.trim())
         .filter(line => line.startsWith('origin'))
-        .filter(line => /chandrakala1511\/patientportal\.git/.test(line))
+        .filter(line => /chandrakala1511\/patient-portal\.git/.test(line))
         .length;
 
       resolve(!!isClonedRepo);

@@ -4,24 +4,19 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
+//import { FormattedMessage } from 'react-intl';
+//import messages from './messages';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import messages from './messages';
-import { loadPatientList } from '../App/actions';
-import { changePatientname } from './actions';
-import reducer from './reducer';
-import saga from './saga';
+import saga from '../App/saga';
+import reducer from '../App/reducer';
+import { loadPatientList, savePatientDetails, loadScanList } from '../App/actions';
 import Typography from '@material-ui/core/Typography';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -44,46 +39,49 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const key = 'home';
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   paper: {
-    marginTop: '20px'
+    marginTop: '20px',
   },
   formControl: {
-    verticalAlign: 'bottom'
+    verticalAlign: 'bottom',
   },
   selectYear: {
-    marginTop: '16px'
+    marginTop: '16px',
   },
   selectSalutation: {
-    marginTop: '16px'
+    marginTop: '16px',
   },
   selectCountry: {
-    width: '100%'
+    width: '100%',
   },
   table: {
-    minWidth: 700
+    minWidth: 700,
   },
   datepicker: {
-    width: '55%'
+    width: '55%',
   },
   phoneNumber: {
-    width: '48%'
-  }
+    width: '48%',
+  },
 }));
 
-const StyledTableCell = withStyles((theme) => ({
+const StyledTableCell = withStyles(theme => ({
   head: {
     backgroundColor: '#b5e3e8',
-    color: '#666'
+    color: '#666',
   },
   body: {
     fontSize: 14,
   },
 }))(TableCell);
 
-const StyledTableRow = withStyles((theme) => ({
+const StyledTableRow = withStyles(theme => ({
   root: {
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
@@ -91,92 +89,144 @@ const StyledTableRow = withStyles((theme) => ({
   },
 }))(TableRow);
 
-function createData(name, scanname, scanamount, discount, totalamount) {
-  return { name, scanname, scanamount, discount, totalamount };
+const countries = ["Afghanistan", "Albania", "Algeria", "American Samoa", "Argentina", "Australia", "Austria", "Bahrain", "Bangladesh", "Belgium", "Bermuda", "Bhutan", "Brazil", "Cambodia", "Canada", "China", "Colombia", "Croatia", "Cuba", "Cyprus", "Denmark", "Egypt", "Ethiopia", "Finland", "France", "Germany", "Greenland", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", "Kenya", "Kuwait", "Libya", "Madagascar", "Malaysia", "Maldives", "Mexico", "Namibia", "Nepal", "Nigeria", "Niue",
+  "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russian Federation", "Singapore", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Thailand", "Turkey", "Uganda", "Ukraine", "United Arab Emirates", "United States of America", "Yemen", "Zambia", "Zimbabwe"];
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const rows = [
-  createData(1, 'CT BRAIN', 200, 10, 180),
-  createData(2, 'MRI BRAIN', 500, 5, 450),
-  createData(3, 'GLUCOSE FASTING', 800, 10, 720)
-];
-
-export function PatientForm({
-  patientname,
-  loading,
-  error,
-  repos,
-  loadPatientList
-}) {
+function PatientForm(props) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   useEffect(() => {
-    loadPatientList();
+    props.loadPatientList();
+    props.loadScanList();
   }, []);
 
-  const reposListProps = {
-    loading,
-    error,
-    repos,
-  };
   const classes = useStyles();
-  const [selectedValue, setSelectedValue] = React.useState('Male');
-  const [value, setValue] = React.useState('');
-  const [dateOfBirth, setDateOfBirth] = React.useState(new Date('2014-08-18T21:11:54'));
-  const [appointmentDate, setAppointmentDate] = React.useState(new Date('2014-08-18T21:11:54'));
-  const [age, setAge] = React.useState('');
-  const [salutation, setSalutation] = React.useState('Mr');
-  const [yearMonth, setYearMonth] = React.useState('Years');
+  const [scanListTable, setScanListTable] = React.useState([]);
+  const [selectedTest, setSelectedTest] = React.useState("");
+  const [scanAmount, setScanAmount] = React.useState("");
+  const [discount, setDiscount] = React.useState("");
+  const [addClicked, setAddClicked] = React.useState(false);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarType, setSnackbarType] = React.useState("error");
 
-  const handleYearMonthChange = (event) => {
-    setYearMonth(event.target.value);
+  const [patientFormData, setPatientFormData] = React.useState({
+    "id": Math.random().toString(36).substr(2, 6),
+    "salutation": "Mr",
+    "name": "",
+    "gender": "Male",
+    "dateOfBirth": "",
+    "age": "",
+    "ageType": "Years",
+    "appointmentDate": "",
+    "phoneNumber": "",
+    "address1": "",
+    "address2": "",
+    "city": "",
+    "state": "",
+    "zipCode": "",
+    "country": ""
+  })
+
+  const handleInputChange = event => {
+    let inputData = { [event.target.id || event.target.name]: event.target.value }
+    setPatientFormData({ ...patientFormData, ...inputData });
   };
 
-  const handleSalutationChange = (event) => {
-    setSalutation(event.target.value);
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
-  const handleAgeChange = (event) => {
-    setAge(event.target.value);
+  const onSelectScanName = (event, value) => {
+    let modality = value.split("-")[0];
+    setSelectedTest(modality);
+    if (value) {
+      const selectedScanData = props.scanData.filter(test => test.modality == modality);
+      setScanAmount(selectedScanData[0].scanAmount);
+    }
+  }
+
+  const changeDiscountValue = (event) => {
+    setDiscount(event.target.value);
+  }
+
+  const addTest = (event, value) => {
+    setAddClicked(true);
+    const formValidation = Object.keys(patientFormData).filter(key => (patientFormData[key] == "")).map(key => key);
+    if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
+      showSnackbar(true, "All fields marked with * are mandatory", "error");
+      return false;
+    }
+    const tmpDiscount = (discount == "") ? 0 : eval(discount);
+    const selectedScanData = props.scanData.filter(test => test.modality == selectedTest);
+    const calculatedData = selectedScanData.map(data => ({ ...data, "scanamount": scanAmount, "discount": tmpDiscount, "totalamount": (scanAmount - tmpDiscount) }));
+    setScanListTable([...scanListTable, ...calculatedData]);
+  }
+
+  const savePatientDetails = event => {
+    const formValidation = Object.keys(patientFormData).filter(key => (patientFormData[key] == "")).map(key => key);
+    if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
+      showSnackbar(true, "All fields marked with * are mandatory", "error");
+      return false;
+    }
+    if (scanListTable.length == 0) {
+      showSnackbar(true, "Atlease one test should be added", "error");
+      return false;
+    }
+    let totalScanAmount = scanListTable.map(scanlist => { return scanlist.scanamount }),
+      totalDiscount = scanListTable.map(scanlist => { return scanlist.discount }),
+      totalAmount = scanListTable.map(scanlist => { return scanlist.totalamount });
+    let amount = { "scanAmount": totalScanAmount.reduce((a, b) => eval(a) + eval(b)), "discount": totalDiscount.reduce((a, b) => eval(a) + eval(b)), "totalAmount": totalAmount.reduce((a, b) => eval(a) + eval(b)), "paidAmount": 0, "balanceAmount": totalAmount.reduce((a, b) => eval(a) + eval(b)) };
+    props.savePatientDetails({ ...patientFormData, ...amount });
+    showSnackbar(true, "Patiend details saved and appointment has been fixed", "success");
+    event.preventDefault();
   };
-  const handleDateChange = (date) => {
-    setDateOfBirth(date);
-  };
-  const handleRadioChange = (event) => {
-    setValue(event.target.value);
-  };
-  const handleChange = (event) => {
-    setSelectedValue(event.target.value);
-  };
+
+  const showSnackbar = (open, message, type) => {
+    setSnackbarOpen(open);
+    setSnackbarMessage(message);
+    setSnackbarType(type);
+  }
 
   return (
     <section>
       <Helmet>
         <title>Patient Details</title>
-        <meta
-          name="description"
-          content="Patient Details"
-        />
+        <meta name="description" content="Patient Details" />
       </Helmet>
       <React.Fragment>
         <Paper>
           <Typography variant="h6" gutterBottom>
             Patient Details
-      </Typography>
+          </Typography>
         </Paper>
+        <Grid item xs={12} sm={12}>
+          <Typography className="info">
+            * All fields marked with * are mandatory.
+          </Typography>
+        </Grid>
         <Grid container spacing={3}>
           <Grid item xs={6} sm={1}>
             <FormControl className={classes.formControl}>
               <Select
-                value={salutation}
-                onChange={handleSalutationChange}
+                value={patientFormData.salutation}
+                onChange={handleInputChange}
+                name="salutation"
                 displayEmpty
                 className={classes.selectSalutation}
-                inputProps={{ 'aria-label': 'Without label' }}>
-                <MenuItem value={"Mr"}>Mr.</MenuItem>
-                <MenuItem value={"Mrs"}>Mrs.</MenuItem>
-                <MenuItem value={"Ms"}>Ms.</MenuItem>
+                inputProps={{ 'aria-label': 'Without label' }}
+              >
+                <MenuItem value="Mr">Mr.</MenuItem>
+                <MenuItem value="Mrs">Mrs.</MenuItem>
+                <MenuItem value="Ms">Ms.</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -184,154 +234,176 @@ export function PatientForm({
             <FormControl className={classes.formControl}>
               <TextField
                 required
-                id="firstName"
-                name="firstName"
+                error={(patientFormData.name == "" && addClicked)}
+                name="name"
+                name="name"
                 label="Patient Name"
+                onChange={handleInputChange}
               />
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={2}>
-            <FormLabel
-              component="legend"
-              className="label-gender">
-              Gender *
-              </FormLabel>
+            <FormLabel component="legend" className="label-gender">
+              Gender <span className="info">*</span>
+            </FormLabel>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <RadioGroup row
+            <RadioGroup
+              row
               aria-label="gender"
               className="select-gender"
               name="gender"
-              value={value}
-              onChange={handleRadioChange}>
+              onChange={handleInputChange}
+            >
               <FormControlLabel
                 value="Male"
                 control={<Radio color="default" />}
-                label="Male" />
+                label="Male"
+              />
               <FormControlLabel
                 value="Female"
                 color="default"
                 control={<Radio color="default" />}
-                label="Female" />
+                label="Female"
+              />
             </RadioGroup>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              id="dateofbirth"
+              required
+              error={(patientFormData.dateOfBirth == "" && addClicked)}
+              name="dateOfBirth"
               label="Date of Birth"
               type="date"
               className={classes.datepicker}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end"><EventIcon /></InputAdornment>
+                  <InputAdornment position="end">
+                    <EventIcon />
+                  </InputAdornment>
                 ),
               }}
               InputLabelProps={{
-                shrink: true
+                shrink: true,
               }}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12} sm={2}>
             <TextField
               required
-              id="age"
+              error={(patientFormData.age == "" && addClicked)}
               name="age"
               label="Age"
-            />
+              onChange={handleInputChange} />
           </Grid>
           <Grid item xs={12} sm={4}>
             <Select
-              value={yearMonth}
+              name="ageType"
+              value={patientFormData.ageType}
               className={classes.selectYear}
-              onChange={handleYearMonthChange}
+              onChange={handleInputChange}
               displayEmpty
               fullwidth={true}
-              inputProps={{ 'aria-label': 'Without label' }}>
-              <MenuItem value={"Years"}>Years</MenuItem>
-              <MenuItem value={"Months"}>Months</MenuItem>
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              <MenuItem value="Years">Years</MenuItem>
+              <MenuItem value="Months">Months</MenuItem>
             </Select>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              id="appointmentdate"
+              required
+              error={(patientFormData.appointmentDate == "" && addClicked)}
+              name="appointmentDate"
               label="Appointment Date"
               type="date"
               className={classes.datepicker}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end"><EventIcon /></InputAdornment>
+                  <InputAdornment position="end">
+                    <EventIcon />
+                  </InputAdornment>
                 ),
               }}
               InputLabelProps={{
-                shrink: true
+                shrink: true,
               }}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               required
-              id="phoneNumber"
+              error={(patientFormData.phoneNumber == "" && addClicked)}
               name="phoneNumber"
               label="Phone Number"
               className={classes.phoneNumber}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               required
-              id="addressLine1"
-              name="addressLine1"
+              error={(patientFormData.address1 == "" && addClicked)}
+              name="address1"
               label="Address line 1"
-              fullWidth="true"
+              fullWidth={true}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              id="addressLine2"
-              name="addressLine2"
+              name="address2"
               label="Address line 2"
-              fullWidth="true"
+              fullWidth={true}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               required
-              id="city"
+              error={(patientFormData.city == "" && addClicked)}
               name="city"
               label="City"
-              fullWidth="true"
+              fullWidth={true}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               required
-              id="state"
+              error={(patientFormData.state == "" && addClicked)}
               name="state"
               label="State / Province"
-              fullWidth />
+              fullWidth={true}
+              onChange={handleInputChange}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               required
-              id="zipCode"
+              error={(patientFormData.zipCode == "" && addClicked)}
               name="zipCode"
               label="Postal / Zip Code"
-              fullWidth="true"
+              fullWidth={true}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl className={classes.selectCountry}>
-              <InputLabel id="countryLabel">Country *</InputLabel>
+            <FormControl className={classes.selectCountry} error={(patientFormData.country == "" && addClicked)}>
+              <InputLabel id="countryLabel">Country <span className="info">*</span></InputLabel>
               <Select
                 required
                 labelId="countryLabel"
-                id="country"
-                value={""}
-                fullWidth="true"
+                name="country"
+                value={patientFormData.country}
+                fullWidth={true}
+                onChange={handleInputChange}
               >
-                <MenuItem value={1}>India</MenuItem>
-                <MenuItem value={2}>Canada</MenuItem>
-                <MenuItem value={3}>Russia</MenuItem>
+                <MenuItem value={""}>Select Country</MenuItem>
+                {countries.map(country => (<MenuItem value={country}>{country}</MenuItem>)
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -341,65 +413,86 @@ export function PatientForm({
         <Paper className={classes.paper}>
           <Typography variant="h6" gutterBottom>
             Medical Scan Details
-      </Typography>
+          </Typography>
         </Paper>
         <Grid container spacing={3} className="scan-details">
-          <Grid item xs={6} sm={3}>
-            <TextField
-              id="scanName"
-              name="scanName"
-              label="Scan List"
-              autoComplete="scan-list"
+          <Grid item xs={12} sm={3}>
+            <Autocomplete
+              options={props.scanData.length > 0 ? props.scanData : []}
+              getOptionLabel={(option) => option.modality + "-" + option.testName}
+              id="scanlist"
+              onInputChange={onSelectScanName}
+              renderInput={(params) => <TextField {...params}
+                required
+                id="scanName"
+                name="scanName"
+                label="Scan List"
+                margin="normal" />}
             />
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <TextField
-              id="scanAmount"
-              name="scanAmount"
-              label="Scan Amount"
-            />
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <TextField
-              id="discount"
-              name="discount"
-              label="Discount"
-            />
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Button variant="contained">ADD</Button>
-          </Grid>
+          {selectedTest != "" && <Grid container xs={6} sm={9}>
+            <Grid item xs={4} sm={4}>
+              <Typography className={"scan-amount"} gutterBottom>Scan Amount : <span>{scanAmount}</span></Typography>
+            </Grid>
+            <Grid item xs={4} sm={4}>
+              <TextField id="discount" name="discount" label="Discount" onChange={changeDiscountValue} className="scan-discount" />
+            </Grid>
+            <Grid item xs={4} sm={4}>
+              <Button variant="contained" onClick={addTest} className="add-button">ADD</Button>
+            </Grid>
+          </Grid>}
         </Grid>
         <Grid item xs={6} sm={12}>
-          <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="customized table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>Sno</StyledTableCell>
-                  <StyledTableCell align="center">Scan Name</StyledTableCell>
-                  <StyledTableCell align="center">Scan Amount</StyledTableCell>
-                  <StyledTableCell align="center">Discount</StyledTableCell>
-                  <StyledTableCell align="center">Total Amount</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <StyledTableRow key={row.name}>
-                    <StyledTableCell component="th" scope="row">
-                      {row.name}
+          {scanListTable.length > 0 && (
+            <TableContainer component={Paper}>
+              <Table className={classes.table} aria-label="customized table">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>Sno</StyledTableCell>
+                    <StyledTableCell align="center">Scan Name</StyledTableCell>
+                    <StyledTableCell align="center">
+                      Scan Amount
                     </StyledTableCell>
-                    <StyledTableCell align="center">{row.scanname}</StyledTableCell>
-                    <StyledTableCell align="center">{row.scanamount}</StyledTableCell>
-                    <StyledTableCell align="center">{row.discount}</StyledTableCell>
-                    <StyledTableCell align="center">{row.totalamount}</StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                    <StyledTableCell align="center">Discount</StyledTableCell>
+                    <StyledTableCell align="center">
+                      Total Amount
+                    </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {scanListTable.map(row => (
+                    <StyledTableRow key={row.modality}>
+                      <StyledTableCell component="th" scope="row">
+                        {row.modality}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {row.testName}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {row.scanamount}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {row.discount}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {row.totalamount}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Grid>
         <Grid item xs={12} sm={12} align="center">
-          <Button variant="contained" className="save-button">SAVE</Button>
+          {addClicked && <Button variant="contained" className="save-button" onClick={savePatientDetails}>
+            SAVE
+          </Button>}
+          <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}>
+            <Alert onClose={handleSnackbarClose} severity={snackbarType}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Grid>
       </React.Fragment>
     </section>
@@ -407,24 +500,24 @@ export function PatientForm({
 }
 
 PatientForm.propTypes = {
-  loading: PropTypes.bool,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   loadPatientList: PropTypes.func,
-  patientname: PropTypes.string
+  loadScanList: PropTypes.func,
+  savePatientDetails: PropTypes.func,
+  savePatientData: PropTypes.object
 };
 
-const mapStateToProps = createStructuredSelector({
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
+const mapStateToProps = state => ({
+  medicalData: state['global'].medicalData,
+  scanData: state['global'].scanData,
+  savePatientData: state['global'].savePatientData,
 });
 
-export function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
-    loadPatientList: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadPatientList());
-    },
+    loadPatientList: () => dispatch(loadPatientList()),
+    loadScanList: () => dispatch(loadScanList()),
+    savePatientDetails: (data) => dispatch(savePatientDetails(data))
   };
 }
 
@@ -435,5 +528,5 @@ const withConnect = connect(
 
 export default compose(
   withConnect,
-  memo,
+  withRouter,
 )(PatientForm);

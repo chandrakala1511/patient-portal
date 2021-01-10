@@ -1,3 +1,4 @@
 {
-    "/paymenthistory/patientid/:patientid": "/paymenthistory?patientid=:patientid"
+  "/medicaldata": "/medicaldata",
+  "/medicaldata/paymenthistory/patientid/:patientid": "/medicaldata/paymenthistory?patientid=:patientid"
 }
