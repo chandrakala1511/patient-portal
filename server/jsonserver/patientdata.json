@@ -121,12 +121,34 @@
       "totalAmount": 900,
       "balanceAmount": 900,
       "paidAmount": 0
+    },
+    {
+      "id": "x0et9h",
+      "salutation": "Ms",
+      "name": "Priyanka",
+      "gender": "Female",
+      "dateOfBirth": "2021-01-12",
+      "age": "34",
+      "ageType": "Years",
+      "appointmentDate": "2021-01-21",
+      "phoneNumber": "zxcxz",
+      "address1": "czxc",
+      "address2": "",
+      "city": "zxc",
+      "state": "xzcxz",
+      "zipCode": "zxc",
+      "country": "Bhutan",
+      "scanAmount": 1000,
+      "discount": 0,
+      "totalAmount": 1000,
+      "paidAmount": 0,
+      "balanceAmount": 1000
     }
   ],
   "tests": [
     {
       "testName": "CT BRAIN",
-      "maxDiscount": "100",
+      "maxDiscount": 100,
       "maxDiscountType": "INR",
       "modality": "CT",
       "slots": "7",
@@ -134,7 +156,7 @@
     },
     {
       "testName": "MRI BRAIN",
-      "maxDiscount": "300",
+      "maxDiscount": 300,
       "maxDiscountType": "INR",
       "modality": "MRI",
       "slots": "6",
@@ -142,8 +164,8 @@
     },
     {
       "testName": "GLUCOSE FASTING",
-      "maxDiscount": "10",
-      "maxDiscountType": "%",
+      "maxDiscount": 80,
+      "maxDiscountType": "INR",
       "modality": "LAB",
       "slots": "INFINITY",
       "scanAmount": 800

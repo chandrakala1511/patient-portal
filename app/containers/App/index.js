@@ -45,7 +45,6 @@ export default function App() {
       <Switch>
         <Route exact path="/" component={PatientForm} />
         <Route exact path="/appointments" component={AppointmentList} />
-        <Route exact path="/patientbilling" component={PatientBilling} />
         <Route exact path="/patientbilling/:id" component={PatientBilling} />
         <Route path="" component={NotFoundPage} />
       </Switch>

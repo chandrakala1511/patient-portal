@@ -134,9 +134,26 @@ function PatientForm(props) {
   })
 
   const handleInputChange = event => {
-    let inputData = { [event.target.id || event.target.name]: event.target.value }
+    let genderValue = "", ageValue = "";
+    if (event.target.name == "salutation") {
+      genderValue = (event.target.value == "Mr") ? "Male" : "Female";
+    } else {
+      genderValue = patientFormData.gender;
+    }
+    if (event.target.name == "dateOfBirth") {
+      ageValue = calculateAge(event.target.value);
+    } else {
+      ageValue = patientFormData.age;
+    }
+    let inputData = { [event.target.id || event.target.name]: event.target.value, gender: genderValue, age: ageValue }
     setPatientFormData({ ...patientFormData, ...inputData });
   };
+
+  const calculateAge = dateofbirth => {
+    var ageDiff = Date.now() - new Date(dateofbirth).getTime();
+    var ageDate = new Date(ageDiff); 
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  }
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -160,15 +177,36 @@ function PatientForm(props) {
 
   const addTest = (event, value) => {
     setAddClicked(true);
+
     const formValidation = Object.keys(patientFormData).filter(key => (patientFormData[key] == "")).map(key => key);
-    if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
-      showSnackbar(true, "All fields marked with * are mandatory", "error");
+    // if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
+    //   showSnackbar(true, "All fields marked with * are mandatory", "error");
+    //   return false;
+    // }
+    const checkTest = scanListTable.filter(scandata => scandata.modality == selectedTest);
+    if (checkTest.length > 0) {
+      showSnackbar(true, "Selected test has been already added", "error");
       return false;
     }
+    
+    if(discount != "" && (isNaN(discount) || discount <= 0)) {
+      showSnackbar(true, "Please enter a valid discount value", "error");
+      return false;
+    }
+
     const tmpDiscount = (discount == "") ? 0 : eval(discount);
     const selectedScanData = props.scanData.filter(test => test.modality == selectedTest);
+    if(tmpDiscount > selectedScanData[0].maxDiscount) {
+      showSnackbar(true, "Maximum discount allowed for this test is "+selectedScanData[0].maxDiscount, "error");
+      return false;
+    }
     const calculatedData = selectedScanData.map(data => ({ ...data, "scanamount": scanAmount, "discount": tmpDiscount, "totalamount": (scanAmount - tmpDiscount) }));
     setScanListTable([...scanListTable, ...calculatedData]);
+  }
+
+  const removeTest = (value) => {
+    const selectedScanData = scanListTable.filter(scandata => scandata.modality != value);
+    setScanListTable(selectedScanData);
   }
 
   const savePatientDetails = event => {
@@ -253,18 +291,21 @@ function PatientForm(props) {
               aria-label="gender"
               className="select-gender"
               name="gender"
+              value={patientFormData.gender}
               onChange={handleInputChange}
             >
               <FormControlLabel
                 value="Male"
                 control={<Radio color="default" />}
                 label="Male"
+                disabled
               />
               <FormControlLabel
                 value="Female"
                 color="default"
                 control={<Radio color="default" />}
                 label="Female"
+                disabled
               />
             </RadioGroup>
           </Grid>
@@ -295,6 +336,7 @@ function PatientForm(props) {
               error={(patientFormData.age == "" && addClicked)}
               name="age"
               label="Age"
+              value={patientFormData.age}
               onChange={handleInputChange} />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -457,6 +499,8 @@ function PatientForm(props) {
                     <StyledTableCell align="center">
                       Total Amount
                     </StyledTableCell>
+                    <StyledTableCell align="center">
+                    </StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -476,6 +520,9 @@ function PatientForm(props) {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         {row.totalamount}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        <Button variant="contained" onClick={() => removeTest(row.modality)}>Remove</Button>
                       </StyledTableCell>
                     </StyledTableRow>
                   ))}
