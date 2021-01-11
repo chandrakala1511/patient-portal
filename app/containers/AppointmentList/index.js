@@ -5,7 +5,6 @@ import { Helmet } from 'react-helmet';
 //import messages from './messages';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { useHistory, Redirect } from "react-router-dom";
 import { compose } from 'redux';
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
@@ -31,8 +30,6 @@ function AppointmentList(props) {
     props.loadPatientList();
     props.loadPaymentList();
   }, []);
-
-  // const history = useHistory();
 
   const data = {
     columns: [
@@ -80,7 +77,7 @@ function AppointmentList(props) {
         day: 'numeric', month: 'short', year: 'numeric'
       }).replace(/ /g, '-');
       const statusValue = props.paymentData.filter(data => (data.patientId == item.id)).map((row, index) => { return row.paidAmount })
-      const totalPaidAmount = statusValue.reduce(function (acc, val) { return acc + val; }, 0);
+      const totalPaidAmount = statusValue.reduce(function (acc, val) { return parseInt(acc) + parseInt(val); }, 0);
       const balanceAmount = item.totalAmount - totalPaidAmount;
       const status = (balanceAmount == 0) ? "Fully Billed" : (balanceAmount == item.totalAmount) ? "Not yet Billed" : "Due Billed";
       const calculatedData = { "ageGender": `${item.age} / ${item.gender}`, "balanceAmount": balanceAmount + " INR", "appointmentDate": formattedDate, "status": status };
@@ -89,8 +86,7 @@ function AppointmentList(props) {
   }
 
   const handlePaymentClick = (id) => {
-    window.location = "http://localhost:3000/patientbilling/" + id;
-    //history.push("/patientbilling/"+id)
+    props.history.push("/patientbilling/" + id)
   }
 
   return (

@@ -171,6 +171,9 @@ function PatientBilling(props) {
     let paymentValues = filterFormValues('id', 'patientId', 'paymentDate', 'paymentMode', 'paidAmount', 'referenceNumber')(paymentFormData);
     props.savePaymentDetails(paymentValues);
     showSnackbar(true, "Payment has been made successfully", "success");
+    setTimeout(() => {
+      props.history.push('/appointments');
+    }, 5000);
     event.stopPropagation();
     event.preventDefault();
   };

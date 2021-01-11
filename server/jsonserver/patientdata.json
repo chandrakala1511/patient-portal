@@ -16,7 +16,8 @@
       "state": "+1 (909) 592-3985",
       "zipCode": 655568,
       "country": "GEEKWAGON",
-      "totalAmount": 2000
+      "totalAmount": 2000,
+      "testList": ["MRI", "LAB"]
     },
     {
       "id": "134345",
@@ -34,7 +35,8 @@
       "state": "+1 (990) 581-2017",
       "zipCode": 845683,
       "country": "United States",
-      "totalAmount": 3000
+      "totalAmount": 3000,
+      "testList": ["LAB", "CT"]
     },
     {
       "id": "111111",
@@ -52,7 +54,8 @@
       "state": "Karnataka",
       "zipCode": 252311,
       "country": "India",
-      "totalAmount": 800
+      "totalAmount": 800,
+      "testList": ["CT"]
     },
     {
       "id": "fg3jhyvi5",
@@ -70,7 +73,8 @@
       "state": "Maharashtra",
       "zipCode": "565656",
       "country": "India",
-      "totalAmount": 1200
+      "totalAmount": 1200,
+      "testList": ["MRI"]
     },
     {
       "id": "2w5mdn6r0",
@@ -88,7 +92,8 @@
       "state": "dsfdsf",
       "zipCode": "sdfdsfds",
       "country": "India",
-      "totalAmount": 600
+      "totalAmount": 600,
+      "testList": ["LAB"]
     },
     {
       "id": "sp9x04s4j",
@@ -108,7 +113,8 @@
       "country": "India",
       "scanAmount": 1000,
       "discount": "100",
-      "totalAmount": 4000
+      "totalAmount": 4000,
+      "testList": ["CT"]
     },
     {
       "id": "x0et9h",
@@ -128,7 +134,29 @@
       "country": "Bhutan",
       "scanAmount": 1000,
       "discount": 0,
-      "totalAmount": 1000
+      "totalAmount": 1000,
+      "testList": ["MRI"]
+    },
+    {
+      "id": "wkg339",
+      "salutation": "Mr",
+      "name": "Rishi",
+      "gender": "Male",
+      "dateOfBirth": "2003-08-04",
+      "age": 17,
+      "ageType": "Years",
+      "appointmentDate": "2021-01-26",
+      "phoneNumber": "34234234324",
+      "address1": "rwerewrewr",
+      "address2": "",
+      "city": "Chennai",
+      "state": "Tamilnadu",
+      "zipCode": "600043",
+      "country": "India",
+      "scanAmount": 2000,
+      "discount": 200,
+      "totalAmount": 1800,
+      "testList": ["MRI"]
     }
   ],
   "tests": [
@@ -211,6 +239,14 @@
       "paymentMode": "Card",
       "paidAmount": "500",
       "referenceNumber": "33332222"
+    },
+    {
+      "id": "906757",
+      "patientId": "343434",
+      "paymentDate": "2021-01-11",
+      "paymentMode": "Cash",
+      "paidAmount": "1000",
+      "referenceNumber": ""
     }
   ]
 }

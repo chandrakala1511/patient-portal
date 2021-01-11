@@ -151,7 +151,7 @@ function PatientForm(props) {
 
   const calculateAge = dateofbirth => {
     var ageDiff = Date.now() - new Date(dateofbirth).getTime();
-    var ageDate = new Date(ageDiff); 
+    var ageDate = new Date(ageDiff);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   }
 
@@ -183,21 +183,29 @@ function PatientForm(props) {
       showSnackbar(true, "All fields marked with * are mandatory", "error");
       return false;
     }
+
+    const selectedScanData = props.scanData.filter(test => test.modality == selectedTest);
+    const checkSlots = props.medicalData.filter(data => (patientFormData.appointmentDate.toString() == data.appointmentDate) && data.testList.indexOf(selectedTest) > -1).map(key => key.appointmentDate);
+
+    if (parseInt(checkSlots.length) >= selectedScanData[0].slots) {
+      showSnackbar(true, "Slots already filled for the selected appointment date for this test. Please change the date", "error");
+      return false;
+    }
+
     const checkTest = scanListTable.filter(scandata => scandata.modality == selectedTest);
     if (checkTest.length > 0) {
       showSnackbar(true, "Selected test has been already added", "error");
       return false;
     }
-    
-    if(discount != "" && (isNaN(discount) || discount <= 0)) {
+
+    if (discount != "" && (isNaN(discount) || discount <= 0)) {
       showSnackbar(true, "Please enter a valid discount value", "error");
       return false;
     }
 
     const tmpDiscount = (discount == "") ? 0 : eval(discount);
-    const selectedScanData = props.scanData.filter(test => test.modality == selectedTest);
-    if(tmpDiscount > selectedScanData[0].maxDiscount) {
-      showSnackbar(true, "Maximum discount allowed for this test is "+selectedScanData[0].maxDiscount, "error");
+    if (tmpDiscount > selectedScanData[0].maxDiscount) {
+      showSnackbar(true, "Maximum discount allowed for this test is " + selectedScanData[0].maxDiscount, "error");
       return false;
     }
     const calculatedData = selectedScanData.map(data => ({ ...data, "scanamount": scanAmount, "discount": tmpDiscount, "totalamount": (scanAmount - tmpDiscount) }));
@@ -221,10 +229,14 @@ function PatientForm(props) {
     }
     let totalScanAmount = scanListTable.map(scanlist => { return scanlist.scanamount }),
       totalDiscount = scanListTable.map(scanlist => { return scanlist.discount }),
-      totalAmount = scanListTable.map(scanlist => { return scanlist.totalamount });
-    let amount = { "scanAmount": totalScanAmount.reduce((a, b) => eval(a) + eval(b)), "discount": totalDiscount.reduce((a, b) => eval(a) + eval(b)), "totalAmount": totalAmount.reduce((a, b) => eval(a) + eval(b)), "paidAmount": 0, "balanceAmount": totalAmount.reduce((a, b) => eval(a) + eval(b)) };
+      totalAmount = scanListTable.map(scanlist => { return scanlist.totalamount }),
+      testList = scanListTable.map(scanlist => { return scanlist.modality });
+    let amount = { "scanAmount": totalScanAmount.reduce((a, b) => eval(a) + eval(b)), "discount": totalDiscount.reduce((a, b) => eval(a) + eval(b)), "totalAmount": totalAmount.reduce((a, b) => eval(a) + eval(b)), "testList": testList };
     props.savePatientDetails({ ...patientFormData, ...amount });
-    showSnackbar(true, "Patiend details saved and appointment has been fixed", "success");
+    showSnackbar(true, "Patient details saved and appointment has been fixed", "success");
+    setTimeout(() => {
+      props.history.push('/appointments');
+    }, 5000);
     event.preventDefault();
   };
 

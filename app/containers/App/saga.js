@@ -84,7 +84,7 @@ export function* loadPaymentListCall(details) {
 /**
  * Save payment details request/response handler
  */
-export function* savePaymentDetailsCall(details) { console.log('chandra',details.data);
+export function* savePaymentDetailsCall(details) {
   const requestURL = `http://localhost:3001/paymenthistory`;
 
   try {
