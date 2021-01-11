@@ -179,10 +179,10 @@ function PatientForm(props) {
     setAddClicked(true);
 
     const formValidation = Object.keys(patientFormData).filter(key => (patientFormData[key] == "")).map(key => key);
-    // if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
-    //   showSnackbar(true, "All fields marked with * are mandatory", "error");
-    //   return false;
-    // }
+    if (formValidation.length > 1 || (formValidation.length == 1 && formValidation[0] != "address2")) {
+      showSnackbar(true, "All fields marked with * are mandatory", "error");
+      return false;
+    }
     const checkTest = scanListTable.filter(scandata => scandata.modality == selectedTest);
     if (checkTest.length > 0) {
       showSnackbar(true, "Selected test has been already added", "error");
