@@ -78,6 +78,10 @@ const GlobalStyle = createGlobalStyle`
     color: #b90909;
   }
 
+  .transaction {
+    margin-bottom:20px;
+  }
+
   .MuiInputLabel-asterisk {
     color: #b90909 !important;
   }

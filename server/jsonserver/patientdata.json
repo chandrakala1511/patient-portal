@@ -6,8 +6,8 @@
       "name": "Langley Holt",
       "gender": "Male",
       "dateOfBirth": "1980-08-18",
-      "age": "http://placehold.it/32x32",
-      "ageType": 40,
+      "age": "40",
+      "ageType": "Years",
       "appointmentDate": "2021-02-18",
       "phoneNumber": "+1 (936) 515-2580",
       "address1": "124 Whitney Avenue, Bergoo, Texas, 1984",
@@ -16,9 +16,7 @@
       "state": "+1 (909) 592-3985",
       "zipCode": 655568,
       "country": "GEEKWAGON",
-      "totalAmount": 2000,
-      "balanceAmount": 2000,
-      "paidAmount": 0
+      "totalAmount": 2000
     },
     {
       "id": "134345",
@@ -36,9 +34,7 @@
       "state": "+1 (990) 581-2017",
       "zipCode": 845683,
       "country": "United States",
-      "totalAmount": 3000,
-      "balanceAmount": 2000,
-      "paidAmount": 0
+      "totalAmount": 3000
     },
     {
       "id": "111111",
@@ -56,9 +52,7 @@
       "state": "Karnataka",
       "zipCode": 252311,
       "country": "India",
-      "totalAmount": 800,
-      "balanceAmount": 800,
-      "paidAmount": 0
+      "totalAmount": 800
     },
     {
       "id": "fg3jhyvi5",
@@ -76,9 +70,7 @@
       "state": "Maharashtra",
       "zipCode": "565656",
       "country": "India",
-      "totalAmount": 1200,
-      "balanceAmount": 1200,
-      "paidAmount": 0
+      "totalAmount": 1200
     },
     {
       "id": "2w5mdn6r0",
@@ -96,9 +88,7 @@
       "state": "dsfdsf",
       "zipCode": "sdfdsfds",
       "country": "India",
-      "totalAmount": 600,
-      "balanceAmount": 600,
-      "paidAmount": 0
+      "totalAmount": 600
     },
     {
       "id": "sp9x04s4j",
@@ -118,9 +108,7 @@
       "country": "India",
       "scanAmount": 1000,
       "discount": "100",
-      "totalAmount": 900,
-      "balanceAmount": 900,
-      "paidAmount": 0
+      "totalAmount": 4000
     },
     {
       "id": "x0et9h",
@@ -140,9 +128,7 @@
       "country": "Bhutan",
       "scanAmount": 1000,
       "discount": 0,
-      "totalAmount": 1000,
-      "paidAmount": 0,
-      "balanceAmount": 1000
+      "totalAmount": 1000
     }
   ],
   "tests": [
@@ -178,7 +164,7 @@
       "paymentDate": "2021-01-06",
       "paymentMode": "Card",
       "referenceNumber": "34324234324",
-      "paidAmount": "200"
+      "paidAmount": 600
     },
     {
       "id": "2222",
@@ -186,14 +172,14 @@
       "paymentDate": "2021-08-06",
       "paymentMode": "Cash",
       "referenceNumber": "",
-      "paidAmount": "400"
+      "paidAmount": 400
     },
     {
       "id": "0cf96r1y4",
       "patientId": "sp9x04s4j",
       "paymentDate": "2021-01-10",
       "paymentMode": "Card",
-      "paidAmount": "200",
+      "paidAmount": 3000,
       "referenceNumber": "5341271"
     },
     {
@@ -201,8 +187,30 @@
       "patientId": "111111",
       "paymentDate": "2021-01-10",
       "paymentMode": "Card",
-      "paidAmount": "245",
+      "paidAmount": 245,
       "referenceNumber": "982071923"
+    },
+    {
+      "id": "380641",
+      "patientId": "x0et9h",
+      "paymentDate": "2021-01-11",
+      "paymentMode": "Card",
+      "paidAmount": "500"
+    },
+    {
+      "id": "210892",
+      "patientId": "134345",
+      "paymentDate": "2021-01-11",
+      "paymentMode": "Card",
+      "paidAmount": "600"
+    },
+    {
+      "id": "997679",
+      "patientId": "134345",
+      "paymentDate": "2021-01-11",
+      "paymentMode": "Card",
+      "paidAmount": "500",
+      "referenceNumber": "33332222"
     }
   ]
 }

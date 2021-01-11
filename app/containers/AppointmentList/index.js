@@ -11,7 +11,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
 import saga from '../App/saga';
 import reducer from '../App/reducer';
-import { loadPatientList } from '../App/actions';
+import { loadPatientList, loadPaymentList } from '../App/actions';
 import { DataGrid } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -29,32 +29,39 @@ function AppointmentList(props) {
 
   useEffect(() => {
     props.loadPatientList();
+    props.loadPaymentList();
   }, []);
 
- // const history = useHistory();
+  // const history = useHistory();
 
   const data = {
     columns: [
       {
         field: 'name',
         headerName: 'Patient Name',
-        width: 200,
+        width: 180,
       },
       {
-        field: 'gender',
+        field: 'ageGender',
         headerName: 'Age / Gender',
-        width: 180,
+        width: 150,
       },
       {
         field: 'appointmentDate',
         headerName: 'Appointment Date',
-        width: 200,
+        width: 180,
       },
       {
         field: 'balanceAmount',
         headerName: 'Balance Amount',
         disableClickEventBubbling: true,
-        width: 200,
+        width: 180,
+      },
+      {
+        field: 'status',
+        headerName: 'Status',
+        disableClickEventBubbling: true,
+        width: 180,
       },
       {
         field: 'id',
@@ -67,11 +74,22 @@ function AppointmentList(props) {
         ),
       },
     ],
-    rows: props.medicalData.map(item => { item.gender = item.age + " / " + item.gender;item.balanceAmount = item.totalAmount; return item; })
+    rows: props.medicalData.map(item => {
+      const date = new Date(item.appointmentDate);
+      const formattedDate = date.toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }).replace(/ /g, '-');
+      const statusValue = props.paymentData.filter(data => (data.patientId == item.id)).map((row, index) => { return row.paidAmount })
+      const totalPaidAmount = statusValue.reduce(function (acc, val) { return acc + val; }, 0);
+      const balanceAmount = item.totalAmount - totalPaidAmount;
+      const status = (balanceAmount == 0) ? "Fully Billed" : (balanceAmount == item.totalAmount) ? "Not yet Billed" : "Due Billed";
+      const calculatedData = { "ageGender": `${item.age} / ${item.gender}`, "balanceAmount": balanceAmount + " INR", "appointmentDate": formattedDate, "status": status };
+      return { ...item, ...calculatedData };
+    })
   }
 
-  const handlePaymentClick = (id) => { 
-    window.location ="http://localhost:3000/patientbilling/"+id;
+  const handlePaymentClick = (id) => {
+    window.location = "http://localhost:3000/patientbilling/" + id;
     //history.push("/patientbilling/"+id)
   }
 
@@ -103,17 +121,19 @@ function AppointmentList(props) {
 }
 
 AppointmentList.propTypes = {
-  // error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   loadPatientList: PropTypes.func,
+  loadPaymentList: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
   medicalData: state['global'].medicalData,
+  paymentData: state['global'].paymentData,
 });
 
 function mapDispatchToProps(dispatch) {
   return {
     loadPatientList: () => dispatch(loadPatientList()),
+    loadPaymentList: () => dispatch(loadPaymentList()),
   };
 }
 

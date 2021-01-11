@@ -26,6 +26,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import EventIcon from '@material-ui/icons/Event';
 
 const key = 'patientbilling';
 
@@ -84,19 +86,44 @@ function PatientBilling(props) {
     props.loadPaymentList();
   }, []);
 
+  useEffect(() => {
+    const patientDetails = props.medicalData.filter(data => (data.id == patientID)).map(detail => { return detail });
+    if (patientDetails.length > 0) {
+      setPatientData(patientDetails[0]);
+    }
+  }, [props.medicalData]);
+
+  useEffect(() => {
+    const paymentDetails = props.paymentData.filter(data => (data.patientId == patientID)).map(detail => { return detail });
+    if (paymentDetails.length > 0) {
+      const amount = paymentDetails.reduce(function (acc, val) { return parseInt(acc) + parseInt(val.paidAmount); }, 0);
+      const balance = patientData.totalAmount - parseInt(amount);
+      setPaymentData(paymentDetails);
+      setPaidAmount(amount);
+      setBalanceAmount(balance);
+    } else {
+      setBalanceAmount(patientData.totalAmount);
+    }
+  }, [props.paymentData]);
+
   const classes = useStyles();
   const [saveClicked, setSaveClicked] = React.useState(false);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
   const [snackbarType, setSnackbarType] = React.useState("error");
   const patientID = props.location.pathname.split("/").pop();
+  const [patientData, setPatientData] = React.useState({});
+  const [paymentData, setPaymentData] = React.useState([]);
+  const [paidAmount, setPaidAmount] = React.useState(0);
+  const [balanceAmount, setBalanceAmount] = React.useState(0);
 
   const [paymentFormData, setPaymentFormData] = React.useState({
     "id": Math.random().toFixed(36).substr(2, 6),
     "patientId": patientID,
     "paymentDate": new Date().toISOString().split('T')[0],
     "paymentMode": "Card",
-    "paidAmount": "",
+    "paidAmount": 0,
+    "referenceNumber": "",
     "cardName": "",
     "cardNumber": "",
     "expiryDate": "",
@@ -123,6 +150,17 @@ function PatientBilling(props) {
       showSnackbar(true, "Please enter amount", "error");
       return false;
     }
+    if (paymentData.length == 2) {
+      if (paymentFormData.paidAmount < balanceAmount) {
+        showSnackbar(true, "You have done 2 transactions already. Please pay the balance amount fully", "error");
+        return false;
+      }
+    } else if (paymentData.length < 2) {
+      if (paymentFormData.paidAmount < (patientData.totalAmount * 20)/100) {
+        showSnackbar(true, "Please pay atleast 20% of the total amount", "error");
+        return false;
+      }
+    }
     if (paymentFormData.paymentMode == "Card") {
       const formValidation = Object.keys(paymentFormData).filter(key => (paymentFormData[key] == "")).map(key => key);
       if (formValidation.length > 0) {
@@ -130,8 +168,7 @@ function PatientBilling(props) {
         return false;
       }
     }
-    let paymentValues = filterFormValues('id', 'patientId', 'paymentDate', 'paymentMode', 'paidAmount')(paymentFormData);
-    paymentValues.referenceNumber = (paymentFormData.paymentMode == "Card") ? Math.random().toFixed(36).substr(2, 9) : "";
+    let paymentValues = filterFormValues('id', 'patientId', 'paymentDate', 'paymentMode', 'paidAmount', 'referenceNumber')(paymentFormData);
     props.savePaymentDetails(paymentValues);
     showSnackbar(true, "Payment has been made successfully", "success");
     event.stopPropagation();
@@ -159,52 +196,52 @@ function PatientBilling(props) {
             <b>Current Billing Status:</b>
           </Typography>
           <Grid container>
-            {props.medicalData.filter(data => (data.id == patientID)).map(user => (
-              <React.Fragment key={user.id}>
+            {patientData &&
+              <React.Fragment key={patientData.id}>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Patient Name</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.name}</Typography>
+                  <Typography gutterBottom>{patientData.name}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Patient ID</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.id}</Typography>
+                  <Typography gutterBottom>{patientData.id}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Age / Gender</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{`${user.age} / ${user.gender}`}</Typography>
+                  <Typography gutterBottom>{`${patientData.age} / ${patientData.gender}`}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Total Amount</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.totalAmount}</Typography>
+                  <Typography gutterBottom>{patientData.totalAmount}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Discount</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.discount}</Typography>
+                  <Typography gutterBottom>{patientData.discount}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Paid Amount</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.paidAmount}</Typography>
+                  <Typography gutterBottom>{paidAmount}</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography gutterBottom>Balance</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography gutterBottom>{user.balanceAmount}</Typography>
+                  <Typography gutterBottom>{balanceAmount}</Typography>
                 </Grid>
               </React.Fragment>
-            ))}
+            }
           </Grid>
         </Grid>
         <Grid item container direction="column" xs={12} sm={7}>
@@ -215,7 +252,7 @@ function PatientBilling(props) {
           >
             <b>Previous Transactions:</b>
           </Typography>
-          <Grid container>
+          <Grid container className="transaction">
             <Grid item xs={6} sm={12}>
               <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="customized table">
@@ -232,7 +269,7 @@ function PatientBilling(props) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {props.paymentData.filter(data => (data.patientId == patientID)).map((row, index) => (
+                    {paymentData.map((row, index) => (
                       <StyledTableRow key={index++}>
                         <StyledTableCell component="th" scope="row">
                           {index++}
@@ -248,6 +285,11 @@ function PatientBilling(props) {
                         </StyledTableCell>
                       </StyledTableRow>
                     ))}
+                    {Object.keys(paymentData).length === 0 && <StyledTableRow>
+                      <StyledTableCell component="th" scope="row" colSpan={4} align="center">
+                        Payment history not available
+                        </StyledTableCell>
+                    </StyledTableRow>}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -255,7 +297,7 @@ function PatientBilling(props) {
           </Grid>
         </Grid>
       </Grid>
-      <Grid container spacing={3}>
+      {balanceAmount > 0 && <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
           <Paper className={classes.paper}>
             <TextField
@@ -283,8 +325,8 @@ function PatientBilling(props) {
             </FormControl>
           </Paper>
         </Grid>
-      </Grid>
-      {paymentFormData.paymentMode == "Card" && <Grid container spacing={3}>
+      </Grid>}
+      {balanceAmount > 0 && paymentFormData.paymentMode == "Card" && <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <TextField
             required
@@ -311,7 +353,19 @@ function PatientBilling(props) {
             error={(paymentFormData.expiryDate == "" && paymentFormData.paymentMode == "Card" && saveClicked)}
             label="Expiry date"
             fullWidth={true}
-            onChange={handleInputChange} />
+            type="date"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <EventIcon />
+                </InputAdornment>
+              ),
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onChange={handleInputChange}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           <TextField
@@ -324,8 +378,18 @@ function PatientBilling(props) {
             onChange={handleInputChange}
           />
         </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            required
+            error={(paymentFormData.referenceNumber == "" && paymentFormData.paymentMode == "Card" && saveClicked)}
+            name="referenceNumber"
+            label="Reference Number"
+            fullWidth={true}
+            onChange={handleInputChange}
+          />
+        </Grid>
       </Grid>}
-      <Grid item xs={12} sm={12} align="center">
+      {balanceAmount > 0 && <Grid item xs={12} sm={12} align="center">
         <Button variant="contained" className="save-button" onClick={savePaymentDetails}>
           SAVE
           </Button>
@@ -334,7 +398,7 @@ function PatientBilling(props) {
             {snackbarMessage}
           </Alert>
         </Snackbar>
-      </Grid>
+      </Grid>}
     </React.Fragment>
   );
 }
