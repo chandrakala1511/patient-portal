@@ -330,11 +330,11 @@ function PatientForm(props) {
               type="date"
               className={classes.datepicker}
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <EventIcon />
-                  </InputAdornment>
-                ),
+                // endAdornment: (
+                //   <InputAdornment position="end">
+                //     <EventIcon />
+                //   </InputAdornment>
+                // ),
               }}
               InputLabelProps={{
                 shrink: true,
@@ -374,11 +374,11 @@ function PatientForm(props) {
               type="date"
               className={classes.datepicker}
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <EventIcon />
-                  </InputAdornment>
-                ),
+                // endAdornment: (
+                //   <InputAdornment position="end">
+                //     <EventIcon />
+                //   </InputAdornment>
+                // ),
               }}
               InputLabelProps={{
                 shrink: true,

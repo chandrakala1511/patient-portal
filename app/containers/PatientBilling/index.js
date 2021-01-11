@@ -358,11 +358,11 @@ function PatientBilling(props) {
             fullWidth={true}
             type="date"
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <EventIcon />
-                </InputAdornment>
-              ),
+              // endAdornment: (
+              //   <InputAdornment position="end">
+              //     <EventIcon />
+              //   </InputAdornment>
+              // ),
             }}
             InputLabelProps={{
               shrink: true,
